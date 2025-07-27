@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Evaluation System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.5;
+            font-size: 18px;
+        }
+        
+        .container {
+            max-width: 100%;
+            padding: 15px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: #4285f4;
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 18px;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        
+        .btn-primary {
+            background: #4285f4;
+            color: white;
+        }
+        
+        .btn-primary:disabled {
+            background: #ccc;
+        }
+        
+        .btn-success {
+            background: #34a853;
+            color: white;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .status-message {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        
+        .status-message h2 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+        
+        .status-message p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .question {
+            margin-bottom: 30px;
+        }
+        
+        .question h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .question p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .slider-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 15px;
+            border-radius: 8px;
+            background: #ddd;
+            outline: none;
+            margin: 15px 0;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #4285f4;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        
+        .value-display {
+            background: #4285f4;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4285f4;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .evaluation-header {
+            background: #ff9800;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .success-icon {
+            font-size: 48px;
+            color: #34a853;
+            margin-bottom: 15px;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Evaluation System</h1>
+        <p>College Presentation Portal</p>
+    </div>
+
+    <div class="container">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="card">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="font-size: 48px; margin-bottom: 15px;">👤</div>
+                <h2>Student Login</h2>
+                <p style="color: #666;">Enter your roll number</p>
+            </div>
+            
+            <div id="loginError" class="error hidden"></div>
+            
+            <input type="text" id="rollNumber" placeholder="e.g. CS001" autocomplete="off">
+            <button id="loginBtn" class="btn-primary" onclick="login()">
+                <span id="loginText">Sign In</span>
+                <div id="loginSpinner" class="spinner hidden"></div>
+            </button>
+        </div>
+
+        <!-- Welcome/Status Screen -->
+        <div id="statusScreen" class="card hidden">
+            <div id="statusContent" class="status-message"></div>
+            <button onclick="checkStatus()" class="btn-primary">🔄 Refresh Status</button>
+            <button onclick="logout()" style="background: #666; color: white;">Logout</button>
+        </div>
+
+        <!-- Evaluation Screen -->
+        <div id="evaluationScreen" class="hidden">
+            <div id="evaluationHeader" class="evaluation-header"></div>
+            
+            <form id="evaluationForm">
+                <div class="card">
+                    <div class="question">
+                        <h3>1. Content Quality and Relevance</h3>
+                        <p>How well-structured and relevant was the content?</p>
+                        <div class="slider-container">
+                            <input type="range" name="q1" min="1" max="10" value="5" class="slider">
+                            <div class="scale-labels">
+                                <span>Poor</span>
+                                <span>Excellent</span>
+                            </div>
+                            <div class="value-display" id="q1-value">5</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="question">
+                        <h3>2. Presentation Delivery and Clarity</h3>
+                        <p>How clear and engaging was the delivery?</p>
+                        <div class="slider-container">
+                            <input type="range" name="q2" min="1" max="10" value="5" class="slider">
+                            <div class="scale-labels">
+                                <span>Poor</span>
+                                <span>Excellent</span>
+                            </div>
+                            <div class="value-display" id="q2-value">5</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="question">
+                        <h3>3. Visual Aids and Supporting Materials</h3>
+                        <p>How effective were the slides and visuals?</p>
+                        <div class="slider-container">
+                            <input type="range" name="q3" min="1" max="10" value="5" class="slider">
+                            <div class="scale-labels">
+                                <span>Poor</span>
+                                <span>Excellent</span>
+                            </div>
+                            <div class="value-display" id="q3-value">5</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="question">
+                        <h3>4. Time Management and Organization</h3>
+                        <p>How well structured and timed was the presentation?</p>
+                        <div class="slider-container">
+                            <input type="range" name="q4" min="1" max="10" value="5" class="slider">
+                            <div class="scale-labels">
+                                <span>Poor</span>
+                                <span>Excellent</span>
+                            </div>
+                            <div class="value-display" id="q4-value">5</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="question">
+                        <h3>5. Overall Effectiveness and Impact</h3>
+                        <p>What was your overall impression?</p>
+                        <div class="slider-container">
+                            <input type="range" name="q5" min="1" max="10" value="5" class="slider">
+                            <div class="scale-labels">
+                                <span>Poor</span>
+                                <span>Excellent</span>
+                            </div>
+                            <div class="value-display" id="q5-value">5</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <button type="submit" id="submitBtn" class="btn-success">
+                        <span id="submitText">✅ Submit Evaluation</span>
+                        <div id="submitSpinner" class="spinner hidden"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Thank You Screen -->
+        <div id="thankYouScreen" class="card hidden">
+            <div class="status-message">
+                <div class="success-icon">✅</div>
+                <h2>Thank You!</h2>
+                <p>Your evaluation has been submitted successfully.</p>
+                <button onclick="checkStatus()" class="btn-primary">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // REPLACE THIS WITH YOUR ACTUAL WEB APP URL
+        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw6rjzmzSay1b25WNr3j8kIf4aBP7DCBuvWEzTQ7TBgQgGWEduu0kebDqy9DlYGzb2kug/exec';
+        
+        let currentUser = null;
+        let currentPresenter = null;
+        let statusInterval = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load existing session
+            loadSession();
+            
+            // Setup sliders
+            setupSliders();
+            
+            // Setup form
+            document.getElementById('evaluationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitEvaluation();
+            });
+        });
+
+        function setupSliders() {
+            for (let i = 1; i <= 5; i++) {
+                const slider = document.querySelector(`input[name="q${i}"]`);
+                const display = document.getElementById(`q${i}-value`);
+                
+                slider.addEventListener('input', function() {
+                    display.textContent = this.value;
+                });
+            }
+        }
+
+        function saveSession(data) {
+            localStorage.setItem('evalSession', JSON.stringify({
+                ...data,
+                timestamp: Date.now()
+            }));
+        }
+
+        function loadSession() {
+            const saved = localStorage.getItem('evalSession');
+            if (saved) {
+                const data = JSON.parse(saved);
+                // Check if session is less than 3 hours old
+                if (Date.now() - data.timestamp < 3 * 60 * 60 * 1000) {
+                    currentUser = data;
+                    checkStatus();
+                    return;
+                }
+            }
+            showScreen('loginScreen');
+        }
+
+        function clearSession() {
+            localStorage.removeItem('evalSession');
+            currentUser = null;
+            currentPresenter = null;
+        }
+
+        async function login() {
+            const rollNumber = document.getElementById('rollNumber').value.trim();
+            
+            if (!rollNumber) {
+                showError('Please enter your roll number');
+                return;
+            }
+
+            setLoading('loginBtn', true);
+            hideError();
+
+            try {
+                const response = await fetch(`${GAS_WEB_APP_URL}?action=getStudent&rollNumber=${encodeURIComponent(rollNumber)}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    currentUser = result;
+                    saveSession(result);
+                    handleUserStatus(result);
+                } else {
+                    showError(result.message || 'Login failed');
+                }
+            } catch (error) {
+                showError('Connection error. Please try again.');
+                console.error(error);
+            }
+
+            setLoading('loginBtn', false);
+        }
+
+        async function checkStatus() {
+            if (!currentUser) return;
+
+            try {
+                const response = await fetch(`${GAS_WEB_APP_URL}?action=getStatus&rollNumber=${encodeURIComponent(currentUser.rollNumber)}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    handleUserStatus(result);
+                }
+            } catch (error) {
+                console.error('Status check failed:', error);
+            }
+        }
+
+        function handleUserStatus(result) {
+            if (result.isEndSession) {
+                showSessionEnd();
+            } else if (result.isPresenting) {
+                showPresenting();
+            } else if (result.isEvaluating) {
+                // Check if already evaluated
+                const evaluated = JSON.parse(localStorage.getItem('evaluatedPresenters') || '[]');
+                if (evaluated.includes(result.currentPresenter)) {
+                    showWaitingMessage(result.currentPresenterName);
+                } else {
+                    currentPresenter = {
+                        rollNumber: result.currentPresenter,
+                        name: result.currentPresenterName
+                    };
+                    showEvaluation();
+                }
+            } else {
+                showWaiting();
+            }
+        }
+
+        function showWaiting() {
+            document.getElementById('statusContent').innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 15px;">⏳</div>
+                <h2>Welcome, ${currentUser.studentName}!</h2>
+                <p>Roll: ${currentUser.rollNumber}</p>
+                <p style="color: #666; margin-top: 15px;">Waiting for presentation to begin...</p>
+            `;
+            showScreen('statusScreen');
+            startStatusCheck();
+        }
+
+        function showPresenting() {
+            document.getElementById('statusContent').innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 15px;">🎤</div>
+                <h2>You're Presenting!</h2>
+                <p>Roll: ${currentUser.rollNumber}</p>
+                <p style="color: #ff9800; margin-top: 15px;">Good luck with your presentation!</p>
+            `;
+            showScreen('statusScreen');
+            startStatusCheck();
+        }
+
+        function showWaitingMessage(presenterName) {
+            document.getElementById('statusContent').innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+                <h2>Evaluation Complete</h2>
+                <p>Currently presenting: ${presenterName}</p>
+                <p style="color: #666; margin-top: 15px;">You've already evaluated this presenter.</p>
+                <p style="color: #666;">Waiting for next presenter...</p>
+            `;
+            showScreen('statusScreen');
+            startStatusCheck();
+        }
+
+        function showEvaluation() {
+            document.getElementById('evaluationHeader').innerHTML = `
+                <h2>📝 Evaluate Presentation</h2>
+                <p><strong>Presenter:</strong> ${currentPresenter.name} (${currentPresenter.rollNumber})</p>
+                <p><strong>Evaluator:</strong> ${currentUser.studentName}</p>
+            `;
+            
+            // Reset form
+            document.getElementById('evaluationForm').reset();
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`q${i}-value`).textContent = '5';
+            }
+            
+            showScreen('evaluationScreen');
+            stopStatusCheck();
+        }
+
+        async function submitEvaluation() {
+            const formData = new FormData(document.getElementById('evaluationForm'));
+            const marks = {
+                q1: parseInt(formData.get('q1')),
+                q2: parseInt(formData.get('q2')),
+                q3: parseInt(formData.get('q3')),
+                q4: parseInt(formData.get('q4')),
+                q5: parseInt(formData.get('q5'))
+            };
+
+            setLoading('submitBtn', true);
+
+            try {
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'submitMarks',
+                        evaluatorRoll: currentUser.rollNumber,
+                        presenterRoll: currentPresenter.rollNumber,
+                        marks: marks
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Mark presenter as evaluated
+                    const evaluated = JSON.parse(localStorage.getItem('evaluatedPresenters') || '[]');
+                    evaluated.push(currentPresenter.rollNumber);
+                    localStorage.setItem('evaluatedPresenters', JSON.stringify(evaluated));
+                    
+                    showThankYou();
+                    setTimeout(checkStatus, 3000);
+                } else {
+                    alert(result.message || 'Submission failed');
+                }
+            } catch (error) {
+                alert('Connection error. Please try again.');
+                console.error(error);
+            }
+
+            setLoading('submitBtn', false);
+        }
+
+        function showThankYou() {
+            showScreen('thankYouScreen');
+        }
+
+        function showSessionEnd() {
+            document.getElementById('statusContent').innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 15px;">🔚</div>
+                <h2>Session Ended</h2>
+                <p>The evaluation session has been concluded.</p>
+                <p style="color: #666; margin-top: 15px;">Thank you for your participation!</p>
+            `;
+            showScreen('statusScreen');
+            stopStatusCheck();
+        }
+
+        function showScreen(screenId) {
+            const screens = ['loginScreen', 'statusScreen', 'evaluationScreen', 'thankYouScreen'];
+            screens.forEach(id => {
+                document.getElementById(id).classList.toggle('hidden', id !== screenId);
+            });
+        }
+
+        function setLoading(buttonId, loading) {
+            const btn = document.getElementById(buttonId);
+            const text = btn.querySelector('span');
+            const spinner = btn.querySelector('.spinner');
+            
+            btn.disabled = loading;
+            text.classList.toggle('hidden', loading);
+            spinner.classList.toggle('hidden', !loading);
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('loginError').classList.add('hidden');
+        }
+
+        function startStatusCheck() {
+            stopStatusCheck();
+            statusInterval = setInterval(checkStatus, 10000); // Every 10 seconds
+        }
+
+        function stopStatusCheck() {
+            if (statusInterval) {
+                clearInterval(statusInterval);
+                statusInterval = null;
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                stopStatusCheck();
+                clearSession();
+                document.getElementById('rollNumber').value = '';
+                showScreen('loginScreen');
+            }
+        }
+
+        // Handle page visibility
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && currentUser) {
+                checkStatus();
+            }
+        });
+    </script>
+</body>
+</html>
