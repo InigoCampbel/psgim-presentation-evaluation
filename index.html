@@ -5,6 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Evaluation System</title>
     <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 0.75rem;
+            --radius-lg: 1rem;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -12,166 +36,337 @@
         }
         
         body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            color: #333;
-            line-height: 1.5;
-            font-size: 18px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--gray-800);
+            line-height: 1.6;
+            font-size: 16px;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
         
         .container {
             max-width: 100%;
-            padding: 15px;
+            padding: 1rem;
+            min-height: 100vh;
         }
         
         .card {
             background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-100);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
         }
         
         .header {
-            background: #4285f4;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 20px 15px;
+            padding: 2rem 1rem;
             text-align: center;
+            margin: -1rem -1rem 1rem -1rem;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            box-shadow: var(--shadow-md);
         }
         
         .header h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
         }
         
         input[type="text"] {
             width: 100%;
-            padding: 15px;
-            font-size: 18px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 1rem;
+            font-size: 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            background: var(--gray-50);
+            transition: all 0.2s ease;
+            font-weight: 500;
         }
         
-        button {
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgb(99 102 241 / 0.1);
+        }
+        
+        .btn {
             width: 100%;
-            padding: 18px;
-            font-size: 20px;
-            font-weight: bold;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--radius);
             cursor: pointer;
-            margin-bottom: 15px;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: none;
+            letter-spacing: 0.025em;
+        }
+        
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
         }
         
         .btn-primary {
-            background: #4285f4;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
+            box-shadow: var(--shadow);
         }
         
-        .btn-primary:disabled {
-            background: #ccc;
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
         }
         
         .btn-success {
-            background: #34a853;
+            background: linear-gradient(135deg, var(--secondary) 0%, #059669 100%);
             color: white;
+            box-shadow: var(--shadow);
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-secondary {
+            background: var(--gray-600);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+        
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--gray-700);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
         
         .hidden {
-            display: none;
+            display: none !important;
         }
         
         .status-message {
             text-align: center;
-            padding: 30px 20px;
+            padding: 2rem 1rem;
+        }
+        
+        .status-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
         }
         
         .status-message h2 {
-            font-size: 22px;
-            margin-bottom: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--gray-800);
         }
         
         .status-message p {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 8px;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+        }
+        
+        .instructions {
+            background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .instructions h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .instruction-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-100);
+        }
+        
+        .instruction-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .instruction-number {
+            background: var(--primary);
+            color: white;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .instruction-content h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 0.25rem;
+        }
+        
+        .instruction-content p {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            line-height: 1.4;
         }
         
         .question {
-            margin-bottom: 30px;
+            margin-bottom: 2rem;
+        }
+        
+        .question-header {
+            background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            border: 1px solid var(--gray-200);
         }
         
         .question h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: #333;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--gray-800);
         }
         
         .question p {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 15px;
+            font-size: 0.875rem;
+            color: var(--gray-600);
         }
         
         .slider-container {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
             text-align: center;
+            border: 2px solid var(--gray-100);
+            transition: border-color 0.2s ease;
+        }
+        
+        .slider-container:hover {
+            border-color: var(--primary);
         }
         
         .slider {
             width: 100%;
-            height: 15px;
-            border-radius: 8px;
-            background: #ddd;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--gray-200);
             outline: none;
-            margin: 15px 0;
+            margin: 1rem 0;
+            cursor: pointer;
+            -webkit-appearance: none;
         }
         
         .slider::-webkit-slider-thumb {
-            width: 35px;
-            height: 35px;
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background: #4285f4;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             cursor: pointer;
             border: 3px solid white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            box-shadow: var(--shadow-md);
+            transition: all 0.2s ease;
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: var(--shadow-md);
         }
         
         .value-display {
-            background: #4285f4;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 20px;
-            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            font-size: 1.125rem;
+            font-weight: 700;
             display: inline-block;
-            margin-top: 10px;
+            margin-top: 0.5rem;
+            box-shadow: var(--shadow);
+            min-width: 3rem;
         }
         
         .scale-labels {
             display: flex;
             justify-content: space-between;
-            font-size: 14px;
-            color: #666;
-            margin-top: 5px;
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            font-weight: 600;
+            margin-top: 0.5rem;
         }
         
-        .loading {
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #4285f4;
+        .loading-spinner {
+            border: 3px solid var(--gray-200);
+            border-top: 3px solid var(--primary);
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            width: 1.5rem;
+            height: 1.5rem;
             animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
+            margin: 0 auto;
         }
         
         @keyframes spin {
@@ -180,27 +375,136 @@
         }
         
         .evaluation-header {
-            background: #ff9800;
+            background: linear-gradient(135deg, var(--warning) 0%, #f59e0b 100%);
             color: white;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 1.5rem;
+            border-radius: var(--radius);
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
         }
         
-        .success-icon {
-            font-size: 48px;
-            color: #34a853;
-            margin-bottom: 15px;
+        .evaluation-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .evaluation-header p {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.25rem;
         }
         
         .error {
-            background: #fee;
-            color: #c33;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
             text-align: center;
+            border: 1px solid #fca5a5;
+            font-weight: 500;
+        }
+        
+        .success-screen {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+        
+        .success-icon {
+            font-size: 5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            display: block;
+            animation: bounce 0.6s ease-in-out;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+                transform: translate3d(0,0,0);
+            }
+            40%, 43% {
+                animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+                transform: translate3d(0, -15px, 0);
+            }
+            70% {
+                animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+                transform: translate3d(0, -7px, 0);
+            }
+            90% {
+                transform: translate3d(0, -2px, 0);
+            }
+        }
+        
+        .login-icon {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            width: 5rem;
+            height: 5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1.5rem auto;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        
+        /* Subtle animations */
+        .card {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0.75rem;
+            }
+            
+            .card {
+                padding: 1.25rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            .header {
+                padding: 1.5rem 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                padding: 0.875rem 1rem;
+            }
+            
+            .instruction-item {
+                padding: 0.5rem;
+            }
+            
+            .instructions {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
@@ -213,26 +517,65 @@
     <div class="container">
         <!-- Login Screen -->
         <div id="loginScreen" class="card">
-            <div style="text-align: center; margin-bottom: 30px;">
-                <div style="font-size: 48px; margin-bottom: 15px;">👤</div>
-                <h2>Student Login</h2>
-                <p style="color: #666;">Enter your roll number</p>
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div class="login-icon">👤</div>
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--gray-800);">Student Login</h2>
+                <p style="color: var(--gray-600); font-size: 0.875rem;">Enter your roll number to continue</p>
             </div>
             
             <div id="loginError" class="error hidden"></div>
             
-            <input type="text" id="rollNumber" placeholder="e.g. CS001" autocomplete="off">
-            <button id="loginBtn" class="btn-primary" onclick="login()">
+            <div class="input-group">
+                <label for="rollNumber">Roll Number</label>
+                <input type="text" id="rollNumber" placeholder="e.g. CS001" autocomplete="off">
+            </div>
+            
+            <button id="loginBtn" class="btn btn-primary" onclick="login()">
                 <span id="loginText">Sign In</span>
-                <div id="loginSpinner" class="spinner hidden"></div>
+                <div id="loginSpinner" class="loading-spinner hidden"></div>
             </button>
         </div>
 
         <!-- Welcome/Status Screen -->
         <div id="statusScreen" class="card hidden">
             <div id="statusContent" class="status-message"></div>
-            <button onclick="checkStatus()" class="btn-primary">🔄 Refresh Status</button>
-            <button onclick="logout()" style="background: #666; color: white;">Logout</button>
+            
+            <div id="instructionsSection" class="instructions hidden">
+                <h3>📋 Instructions</h3>
+                <div class="instruction-item">
+                    <div class="instruction-number">1</div>
+                    <div class="instruction-content">
+                        <h4>Wait for Presenter</h4>
+                        <p>The system will automatically show when evaluation begins</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-number">2</div>
+                    <div class="instruction-content">
+                        <h4>Rate Fairly</h4>
+                        <p>Use the full scale: 1 (Poor) to 10 (Excellent)</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-number">3</div>
+                    <div class="instruction-content">
+                        <h4>Submit Once</h4>
+                        <p>You can only evaluate each presenter once (Can't edit once submitted)</p>
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-number">4</div>
+                    <div class="instruction-content">
+                        <h4>Stay Connected</h4>
+                        <p>Keep this tab open throughout the session</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button onclick="checkStatus()" class="btn btn-primary">🔄 Refresh Status</button>
+                <button onclick="logout()" class="btn btn-secondary">Logout</button>
+            </div>
         </div>
 
         <!-- Evaluation Screen -->
@@ -242,8 +585,10 @@
             <form id="evaluationForm">
                 <div class="card">
                     <div class="question">
-                        <h3>1. Content Quality and Relevance</h3>
-                        <p>How well-structured and relevant was the content?</p>
+                        <div class="question-header">
+                            <h3>1. Content Quality and Relevance</h3>
+                            <p>How well-structured and relevant was the content?</p>
+                        </div>
                         <div class="slider-container">
                             <input type="range" name="q1" min="1" max="10" value="5" class="slider">
                             <div class="scale-labels">
@@ -257,8 +602,10 @@
 
                 <div class="card">
                     <div class="question">
-                        <h3>2. Presentation Delivery and Clarity</h3>
-                        <p>How clear and engaging was the delivery?</p>
+                        <div class="question-header">
+                            <h3>2. Presentation Delivery and Clarity</h3>
+                            <p>How clear and engaging was the delivery?</p>
+                        </div>
                         <div class="slider-container">
                             <input type="range" name="q2" min="1" max="10" value="5" class="slider">
                             <div class="scale-labels">
@@ -272,8 +619,10 @@
 
                 <div class="card">
                     <div class="question">
-                        <h3>3. Visual Aids and Supporting Materials</h3>
-                        <p>How effective were the slides and visuals?</p>
+                        <div class="question-header">
+                            <h3>3. Visual Aids and Supporting Materials</h3>
+                            <p>How effective were the slides and visuals?</p>
+                        </div>
                         <div class="slider-container">
                             <input type="range" name="q3" min="1" max="10" value="5" class="slider">
                             <div class="scale-labels">
@@ -287,8 +636,10 @@
 
                 <div class="card">
                     <div class="question">
-                        <h3>4. Time Management and Organization</h3>
-                        <p>How well structured and timed was the presentation?</p>
+                        <div class="question-header">
+                            <h3>4. Time Management and Organization</h3>
+                            <p>How well structured and timed was the presentation?</p>
+                        </div>
                         <div class="slider-container">
                             <input type="range" name="q4" min="1" max="10" value="5" class="slider">
                             <div class="scale-labels">
@@ -302,8 +653,10 @@
 
                 <div class="card">
                     <div class="question">
-                        <h3>5. Overall Effectiveness and Impact</h3>
-                        <p>What was your overall impression?</p>
+                        <div class="question-header">
+                            <h3>5. Overall Effectiveness and Impact</h3>
+                            <p>What was your overall impression?</p>
+                        </div>
                         <div class="slider-container">
                             <input type="range" name="q5" min="1" max="10" value="5" class="slider">
                             <div class="scale-labels">
@@ -316,9 +669,9 @@
                 </div>
 
                 <div class="card">
-                    <button type="submit" id="submitBtn" class="btn-success">
+                    <button type="submit" id="submitBtn" class="btn btn-success">
                         <span id="submitText">✅ Submit Evaluation</span>
-                        <div id="submitSpinner" class="spinner hidden"></div>
+                        <div id="submitSpinner" class="loading-spinner hidden"></div>
                     </button>
                 </div>
             </form>
@@ -326,11 +679,11 @@
 
         <!-- Thank You Screen -->
         <div id="thankYouScreen" class="card hidden">
-            <div class="status-message">
+            <div class="success-screen">
                 <div class="success-icon">✅</div>
-                <h2>Thank You!</h2>
-                <p>Your evaluation has been submitted successfully.</p>
-                <button onclick="checkStatus()" class="btn-primary">Continue</button>
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--gray-800);">Thank You!</h2>
+                <p style="color: var(--gray-600); margin-bottom: 2rem;">Your evaluation has been submitted successfully.</p>
+                <button onclick="checkStatus()" class="btn btn-primary">Continue</button>
             </div>
         </div>
     </div>
@@ -370,16 +723,18 @@
         }
 
         function saveSession(data) {
-            localStorage.setItem('evalSession', JSON.stringify({
+            const sessionData = {
                 ...data,
                 timestamp: Date.now()
-            }));
+            };
+            // Store in memory instead of localStorage
+            window.evalSession = sessionData;
         }
 
         function loadSession() {
-            const saved = localStorage.getItem('evalSession');
-            if (saved) {
-                const data = JSON.parse(saved);
+            // Check for in-memory session
+            if (window.evalSession) {
+                const data = window.evalSession;
                 // Check if session is less than 3 hours old
                 if (Date.now() - data.timestamp < 3 * 60 * 60 * 1000) {
                     currentUser = data;
@@ -391,7 +746,7 @@
         }
 
         function clearSession() {
-            localStorage.removeItem('evalSession');
+            window.evalSession = null;
             currentUser = null;
             currentPresenter = null;
         }
@@ -448,7 +803,7 @@
                 showPresenting();
             } else if (result.isEvaluating) {
                 // Check if already evaluated
-                const evaluated = JSON.parse(localStorage.getItem('evaluatedPresenters') || '[]');
+                const evaluated = window.evaluatedPresenters || [];
                 if (evaluated.includes(result.currentPresenter)) {
                     showWaitingMessage(result.currentPresenterName);
                 } else {
@@ -465,34 +820,37 @@
 
         function showWaiting() {
             document.getElementById('statusContent').innerHTML = `
-                <div style="font-size: 48px; margin-bottom: 15px;">⏳</div>
+                <div class="status-icon">⏳</div>
                 <h2>Welcome, ${currentUser.studentName}!</h2>
-                <p>Roll: ${currentUser.rollNumber}</p>
-                <p style="color: #666; margin-top: 15px;">Waiting for presentation to begin...</p>
+                <p><strong>Roll:</strong> ${currentUser.rollNumber}</p>
+                <p style="color: var(--gray-600); margin-top: 1rem;">Waiting for presentation to begin...</p>
             `;
+            document.getElementById('instructionsSection').classList.remove('hidden');
             showScreen('statusScreen');
             startStatusCheck();
         }
 
         function showPresenting() {
             document.getElementById('statusContent').innerHTML = `
-                <div style="font-size: 48px; margin-bottom: 15px;">🎤</div>
+                <div class="status-icon">🎤</div>
                 <h2>You're Presenting!</h2>
-                <p>Roll: ${currentUser.rollNumber}</p>
-                <p style="color: #ff9800; margin-top: 15px;">Good luck with your presentation!</p>
+                <p><strong>Roll:</strong> ${currentUser.rollNumber}</p>
+                <p style="color: var(--warning); margin-top: 1rem; font-weight: 600;">Good luck with your presentation!</p>
             `;
+            document.getElementById('instructionsSection').classList.add('hidden');
             showScreen('statusScreen');
             startStatusCheck();
         }
 
         function showWaitingMessage(presenterName) {
             document.getElementById('statusContent').innerHTML = `
-                <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+                <div class="status-icon">✅</div>
                 <h2>Evaluation Complete</h2>
-                <p>Currently presenting: ${presenterName}</p>
-                <p style="color: #666; margin-top: 15px;">You've already evaluated this presenter.</p>
-                <p style="color: #666;">Waiting for next presenter...</p>
+                <p><strong>Currently presenting:</strong> ${presenterName}</p>
+                <p style="color: var(--gray-600); margin-top: 1rem;">You've already evaluated this presenter.</p>
+                <p style="color: var(--gray-600);">Waiting for next presenter...</p>
             `;
+            document.getElementById('instructionsSection').classList.remove('hidden');
             showScreen('statusScreen');
             startStatusCheck();
         }
@@ -543,10 +901,11 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    // Mark presenter as evaluated
-                    const evaluated = JSON.parse(localStorage.getItem('evaluatedPresenters') || '[]');
-                    evaluated.push(currentPresenter.rollNumber);
-                    localStorage.setItem('evaluatedPresenters', JSON.stringify(evaluated));
+                    // Mark presenter as evaluated in memory
+                    if (!window.evaluatedPresenters) {
+                        window.evaluatedPresenters = [];
+                    }
+                    window.evaluatedPresenters.push(currentPresenter.rollNumber);
                     
                     showThankYou();
                     setTimeout(checkStatus, 3000);
@@ -567,11 +926,12 @@
 
         function showSessionEnd() {
             document.getElementById('statusContent').innerHTML = `
-                <div style="font-size: 48px; margin-bottom: 15px;">🔚</div>
+                <div class="status-icon">🔚</div>
                 <h2>Session Ended</h2>
                 <p>The evaluation session has been concluded.</p>
-                <p style="color: #666; margin-top: 15px;">Thank you for your participation!</p>
+                <p style="color: var(--gray-600); margin-top: 1rem;">Thank you for your participation!</p>
             `;
+            document.getElementById('instructionsSection').classList.add('hidden');
             showScreen('statusScreen');
             stopStatusCheck();
         }
@@ -586,11 +946,11 @@
         function setLoading(buttonId, loading) {
             const btn = document.getElementById(buttonId);
             const text = btn.querySelector('span');
-            const spinner = btn.querySelector('.spinner');
+            const spinner = btn.querySelector('.loading-spinner');
             
             btn.disabled = loading;
-            text.classList.toggle('hidden', loading);
-            spinner.classList.toggle('hidden', !loading);
+            if (text) text.classList.toggle('hidden', loading);
+            if (spinner) spinner.classList.toggle('hidden', !loading);
         }
 
         function showError(message) {
@@ -627,6 +987,14 @@
         // Handle page visibility
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden && currentUser) {
+                checkStatus();
+            }
+        });
+
+        // Handle back button
+        window.addEventListener('popstate', function(e) {
+            if (currentUser) {
+                e.preventDefault();
                 checkStatus();
             }
         });
