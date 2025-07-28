@@ -842,7 +842,6 @@
                                 <span>Poor</span>
                                 <span>Excellent</span>
                             </div>
-                            <div class="value-display" id="q1-value">5</div>
                         </div>
                     </div>
                 </div>
@@ -873,7 +872,6 @@
                                 <span>Poor</span>
                                 <span>Excellent</span>
                             </div>
-                            <div class="value-display" id="q2-value">5</div>
                         </div>
                     </div>
                 </div>
@@ -904,7 +902,6 @@
                                 <span>Poor</span>
                                 <span>Excellent</span>
                             </div>
-                            <div class="value-display" id="q3-value">5</div>
                         </div>
                     </div>
                 </div>
@@ -935,7 +932,6 @@
                                 <span>Poor</span>
                                 <span>Excellent</span>
                             </div>
-                            <div class="value-display" id="q4-value">5</div>
                         </div>
                     </div>
                 </div>
@@ -966,7 +962,6 @@
                                 <span>Poor</span>
                                 <span>Excellent</span>
                             </div>
-                            <div class="value-display" id="q5-value">5</div>
                         </div>
                     </div>
                 </div>
@@ -1042,11 +1037,11 @@
         function setupSliders() {
             for (let i = 1; i <= 5; i++) {
                 const slider = document.querySelector(`input[name="q${i}"]`);
-                const display = document.getElementById(`q${i}-value`);
+                //const display = document.getElementById(`q${i}-value`);
                 const numbers = slider.parentElement.querySelector('.slider-numbers');
                 
                 function updateSlider(value) {
-                    display.textContent = value;
+                    //display.textContent = value;
                     sliderValues[`q${i}`] = parseInt(value);
                     
                     // Update number indicators
@@ -1173,14 +1168,8 @@
             
             // Add loading screen
             document.querySelector('.container').appendChild(loadingScreen);
-            
-            // Remove loading screen after 3 seconds (fallback)
-            setTimeout(() => {
-                const loadingEl = document.getElementById('loadingState');
-                if (loadingEl) {
-                    loadingEl.remove();
-                }
-            }, 3000);
+
+            // REMOVE the setTimeout here!
         }
 
         function hideLoadingState() {
@@ -1340,8 +1329,8 @@
             for (let i = 1; i <= 5; i++) {
                 const slider = document.querySelector(`input[name="q${i}"]`);
                 slider.value = 5;
-                const display = document.getElementById(`q${i}-value`);
-                display.textContent = '5';
+                //const display = document.getElementById(`q${i}-value`);
+                //display.textContent = '5';
                 
                 // Reset number indicators
                 const numbers = slider.parentElement.querySelector('.slider-numbers');
