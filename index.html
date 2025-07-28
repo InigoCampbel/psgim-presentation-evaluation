@@ -210,7 +210,7 @@
         }
         
         .btn-success {
-            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+            background: linear-gradient(135deg, #2a10b9 0%, #f50808 100%);
             color: white;
             box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
         }
@@ -363,7 +363,7 @@
         }
         
         .evaluation-header {
-            background: linear-gradient(135deg, var(--warning-color) 0%, #f59e0b 100%);
+            background: linear-gradient(135deg, #0b26f5 0%, #f50b0b 100%);
             color: white;
             padding: 2.5rem;
             border-radius: var(--radius-lg);
@@ -513,7 +513,7 @@
         .slider-number.active {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
-            transform: scale(1.15);
+            transform: scale(1);
             border-color: white;
             box-shadow: 0 2px 4px rgba(30, 58, 138, 0.3);
         }
@@ -1072,30 +1072,122 @@
         function saveSession(data) {
             const sessionData = {
                 ...data,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                evaluatedPresenters: window.evaluatedPresenters || []
             };
-            // Store in memory instead of localStorage
-            window.evalSession = sessionData;
+            
+            try {
+                // Use sessionStorage for persistence across page refreshes
+                sessionStorage.setItem('evalSession', JSON.stringify(sessionData));
+                // Also keep in memory as backup
+                window.evalSession = sessionData;
+            } catch (error) {
+                console.warn('SessionStorage not available, using memory only');
+                window.evalSession = sessionData;
+            }
         }
 
         function loadSession() {
-            // Check for in-memory session
-            if (window.evalSession) {
-                const data = window.evalSession;
-                // Check if session is less than 3 hours old
-                if (Date.now() - data.timestamp < 3 * 60 * 60 * 1000) {
-                    currentUser = data;
+            let sessionData = null;
+            
+            try {
+                // Try to load from sessionStorage first
+                const stored = sessionStorage.getItem('evalSession');
+                if (stored) {
+                    sessionData = JSON.parse(stored);
+                }
+            } catch (error) {
+                console.warn('SessionStorage not available or corrupted');
+            }
+            
+            // Fallback to memory storage
+            if (!sessionData && window.evalSession) {
+                sessionData = window.evalSession;
+            }
+            
+            if (sessionData) {
+                // Check if session is less than 8 hours old (extended for better UX)
+                if (Date.now() - sessionData.timestamp < 8 * 60 * 60 * 1000) {
+                    currentUser = sessionData;
+                    // Restore evaluated presenters list
+                    window.evaluatedPresenters = sessionData.evaluatedPresenters || [];
+                    
+                    // Show loading state while checking status
+                    showLoadingState();
+                    
+                    // Check current status from server
                     checkStatus();
                     return;
                 }
             }
+            
+            // No valid session found
             showScreen('loginScreen');
         }
 
         function clearSession() {
+            try {
+                sessionStorage.removeItem('evalSession');
+            } catch (error) {
+                console.warn('SessionStorage not available');
+            }
+            
             window.evalSession = null;
+            window.evaluatedPresenters = [];
             currentUser = null;
             currentPresenter = null;
+        }
+
+        function updateSessionData(updates) {
+            if (currentUser) {
+                const updatedData = {
+                    ...currentUser,
+                    ...updates,
+                    timestamp: Date.now(),
+                    evaluatedPresenters: window.evaluatedPresenters || []
+                };
+                saveSession(updatedData);
+                currentUser = updatedData;
+            }
+        }
+
+        function showLoadingState() {
+            const loadingScreen = document.createElement('div');
+            loadingScreen.id = 'loadingState';
+            loadingScreen.className = 'card';
+            loadingScreen.innerHTML = `
+                <div class="status-message">
+                    <div class="status-icon">
+                        <div class="loading-spinner" style="border-color: var(--primary-color); border-top-color: transparent; width: 3rem; height: 3rem; border-width: 4px;"></div>
+                    </div>
+                    <h2>Restoring Session...</h2>
+                    <p style="color: var(--gray-medium);">Please wait while we check your current status</p>
+                </div>
+            `;
+            
+            // Hide all other screens
+            const screens = ['loginScreen', 'statusScreen', 'evaluationScreen', 'thankYouScreen'];
+            screens.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            
+            // Add loading screen
+            document.querySelector('.container').appendChild(loadingScreen);
+            
+            // Remove loading screen after 3 seconds (fallback)
+            setTimeout(() => {
+                const loadingEl = document.getElementById('loadingState');
+                if (loadingEl) {
+                    loadingEl.remove();
+                }
+            }, 3000);
+        }
+
+        function hideLoadingState() {
+            const loadingEl = document.getElementById('loadingState');
+            if (loadingEl) {
+                loadingEl.remove();
+            }
         }
 
         async function login() {
@@ -1115,6 +1207,7 @@
 
                 if (result.success) {
                     currentUser = result;
+                    window.evaluatedPresenters = []; // Reset evaluated list on new login
                     saveSession(result);
                     handleUserStatus(result);
                 } else {
@@ -1129,17 +1222,32 @@
         }
 
         async function checkStatus() {
-            if (!currentUser) return;
+            if (!currentUser) {
+                showScreen('loginScreen');
+                return;
+            }
 
             try {
                 const response = await fetch(`${GAS_WEB_APP_URL}?action=getStatus&rollNumber=${encodeURIComponent(currentUser.rollNumber)}`);
                 const result = await response.json();
 
                 if (result.success) {
+                    // Update session with latest data
+                    updateSessionData(result);
                     handleUserStatus(result);
+                    hideLoadingState(); // Hide loading if it was shown
+                } else {
+                    console.error('Status check failed:', result.message);
+                    hideLoadingState();
+                    showScreen('loginScreen');
                 }
             } catch (error) {
                 console.error('Status check failed:', error);
+                hideLoadingState();
+                // Don't logout on network error, just show current state
+                if (!document.querySelector('#loginScreen:not(.hidden)')) {
+                    showWaiting(); // Fallback to waiting state
+                }
             }
         }
 
@@ -1216,12 +1324,7 @@
 
         function showEvaluation() {
             document.getElementById('evaluationHeader').innerHTML = `
-                <h2>
-                    <svg class="icon" style="display: inline-block; margin-right: 0.5rem;" viewBox="0 0 24 24">
-                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                    </svg>
-                    Evaluate Presentation
-                </h2>
+
                 <p><strong>Presenter:</strong> <span style="color: white; font-weight: 700;">${currentPresenter.name} (${currentPresenter.rollNumber})</span></p>
                 <p><strong>Evaluator:</strong> <span style="color: white; font-weight: 700;">${currentUser.studentName}</span></p>
             `;
@@ -1281,6 +1384,9 @@
                         window.evaluatedPresenters = [];
                     }
                     window.evaluatedPresenters.push(currentPresenter.rollNumber);
+                    
+                    // Update session with new evaluated list
+                    updateSessionData({ evaluatedPresenters: window.evaluatedPresenters });
                     
                     // Show thank you screen immediately
                     showThankYou();
@@ -1365,24 +1471,82 @@
                 stopStatusCheck();
                 clearSession();
                 document.getElementById('rollNumber').value = '';
+                
+                // Clear any evaluated presenters
+                window.evaluatedPresenters = [];
+                
                 showScreen('loginScreen');
+                
+                // Show logout confirmation
+                setTimeout(() => {
+                    const loginCard = document.getElementById('loginScreen');
+                    const successMsg = document.createElement('div');
+                    successMsg.style.cssText = `
+                        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.2) 100%);
+                        color: var(--success-color);
+                        padding: 1rem;
+                        border-radius: var(--radius);
+                        margin-bottom: 1rem;
+                        text-align: center;
+                        border: 2px solid rgba(16, 185, 129, 0.3);
+                        font-weight: 600;
+                    `;
+                    successMsg.textContent = 'Successfully logged out';
+                    
+                    loginCard.insertBefore(successMsg, loginCard.firstChild);
+                    
+                    // Remove message after 3 seconds
+                    setTimeout(() => {
+                        if (successMsg.parentNode) {
+                            successMsg.remove();
+                        }
+                    }, 3000);
+                }, 100);
             }
         }
 
-        // Handle page visibility
+        // Enhanced page visibility handling
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden && currentUser) {
+                // When user returns to tab, check status
+                console.log('Tab became visible, checking status...');
                 checkStatus();
             }
         });
 
-        // Handle back button
+        // Enhanced back button handling
         window.addEventListener('popstate', function(e) {
             if (currentUser) {
                 e.preventDefault();
                 checkStatus();
             }
         });
+
+        // Handle page unload (save state before leaving)
+        window.addEventListener('beforeunload', function() {
+            if (currentUser) {
+                // Ensure session is saved before page unloads
+                updateSessionData({});
+            }
+        });
+
+        // Periodic session validation
+        setInterval(() => {
+            if (currentUser) {
+                // Validate session every 5 minutes
+                const sessionAge = Date.now() - currentUser.timestamp;
+                if (sessionAge > 8 * 60 * 60 * 1000) { // 8 hours
+                    console.log('Session expired, logging out...');
+                    clearSession();
+                    showScreen('loginScreen');
+                    
+                    // Show session expired message
+                    setTimeout(() => {
+                        showError('Session expired. Please login again.');
+                    }, 500);
+                }
+            }
+        }, 5 * 60 * 1000); // Check every 5 minutes
     </script>
 </body>
 </html>
